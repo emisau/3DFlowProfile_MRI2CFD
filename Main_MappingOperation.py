@@ -4,7 +4,8 @@
 ######## Copyright (C) Emilie Sauvage 2017 - e.sauvage@ucl.ac.uk / sauvage.emilie@gmail.com           ######## 
 ######## All rights reserved.                                                                         ########
 ########                                                                                              ########
-######## If you are using this software, please let me know in case your work leads to a publication. ########
+######## If you are using this software, please let me know in case your work is made public or       ########
+######## leads to a publication.                                                                      ########
 ########                                                                                              ########
 ##############################################################################################################
 ##############################################################################################################
