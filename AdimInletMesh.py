@@ -4,12 +4,10 @@
 ######## Copyright (C) Emilie Sauvage 2017 - e.sauvage@ucl.ac.uk / sauvage.emilie@gmail.com           ######## 
 ######## All rights reserved.                                                                         ########
 ########                                                                                              ########
-######## If you are using this software, please let me know in case your work is made public or       ########
-######## leads to a publication.                                                                      ########
+######## If you are using this software, please let me know in case your work leads to a publication. ########
 ########                                                                                              ########
 ##############################################################################################################
 ##############################################################################################################
-
 import numpy as np
 import math
 
@@ -17,7 +15,7 @@ import Gmsh
 
 # ********************************************************************************************************************************  
 
-def adimention_Inlet_grid(meshfile, RowNb, ColumnNb, Time, VectXcoord, VectYcoord, VelocityMat):
+def adimention_Inlet_grid(meshfile, RowNb, ColumnNb, Time, VectXcoord, VectYcoord, VelocityMat, NormalVector):
 
   #################################################
   ### coordinates transformation of the points
@@ -48,10 +46,11 @@ def adimention_Inlet_grid(meshfile, RowNb, ColumnNb, Time, VectXcoord, VectYcoor
   ### on the surface of the inlet
   #################################################
 
-  ##Vector of the base:
-  X_vect = [1.4,0,0]
-  Y_vect = [0,1.4,0]
-  N_vect = [0,0,1]
+  ##Vector of the base -  taken from VMTK (I think...)
+  X_vect = [0.011,0,0]
+  Y_vect = [0,0.011,0]
+  N_vect = [0.6843449, -0.5662259, 0.4594129]
+
 
   ## Change of coordinates:
   r_inlet = np.zeros(NNodes)
@@ -60,18 +59,23 @@ def adimention_Inlet_grid(meshfile, RowNb, ColumnNb, Time, VectXcoord, VectYcoor
   Y_local = np.zeros(NNodes)
 
   # Transformation from Cartesian to cylindrical coordinates (x,y) --> (r, phi)
-  # See coordinates transformation https://en.wikipedia.org/wiki/List_of_common_coordinate_transformations
+  # See coordinates transformation https://en.wikipedia.org/wiki/List_of_common_coordinate_transformations, https://en.wikipedia.org/wiki/Cylindrical_coordinate_system
+
+# Removed the Z-component
+
   R_inlet_max = 0.0
   for i_node in range (NNodes):
     dX = x[i_node] - Xc_inlet
     dY = y[i_node] - Yc_inlet
     dZ = z[i_node] - Zc_inlet
-    r_inlet[i_node] = np.sqrt(dX*dX + dY*dY + dZ*dZ) #This is the magnitude of "r" - the norm of "r"
+    r_inlet[i_node] = np.sqrt(dX*dX + dY*dY) #This is the magnitude of "r" - the norm of "r"
     if (r_inlet[i_node] > R_inlet_max):
       R_inlet_max = r_inlet[i_node]
-    r_vect_comp = [dX,dY,dZ] #May be the computation of r_vect_comp is useless
-    dot_product_rX = (dX*X_vect[0] + dY*X_vect[1] + dZ*X_vect[2])
-    dot_product_rY = (dX*Y_vect[0] + dY*Y_vect[1] + dZ*Y_vect[2])
+    r_vect_comp = [dX,dY] #May be the computation of r_vect_comp is useless
+    dot_product_rX = (dX*X_vect[0] + dY*X_vect[1])
+    dot_product_rY = (dX*Y_vect[0] + dY*Y_vect[1])
+    ##### TO CHECK:  Mara has removed the Z-components from these expressions above
+    
     
     arccos_argument = dot_product_rX / (r_inlet[i_node] * np.linalg.norm(X_vect))
     

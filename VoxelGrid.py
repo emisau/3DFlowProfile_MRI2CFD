@@ -1,15 +1,3 @@
-##############################################################################################################
-##############################################################################################################
-########                                                                                              ########
-######## Copyright (C) Emilie Sauvage 2017 - e.sauvage@ucl.ac.uk / sauvage.emilie@gmail.com           ######## 
-######## All rights reserved.                                                                         ########
-########                                                                                              ########
-######## If you are using this software, please let me know in case your work is made public or       ########
-######## leads to a publication.                                                                      ########
-########                                                                                              ########
-##############################################################################################################
-##############################################################################################################
-
 import numpy as np
 import math
 
@@ -89,7 +77,7 @@ def read_MRI_voxel_grid(filename):
   VelocityMat = np.zeros((RowNb,ColumnNb,len(Time)))
   count = 0
 
-  data_file = open("3DVelocityShapeProfiles.csv")
+  data_file = open("TOF3_3DProfileData.csv")
   for line in data_file:
       if "Time [ms]" in line:
         temp = line.split(",")

@@ -4,8 +4,7 @@
 ######## Copyright (C) Emilie Sauvage 2017 - e.sauvage@ucl.ac.uk / sauvage.emilie@gmail.com           ######## 
 ######## All rights reserved.                                                                         ########
 ########                                                                                              ########
-######## If you are using this software, please let me know in case your work is made public or       ########
-######## leads to a publication.                                                                      ########
+######## If you are using this software, please let me know in case your work leads to a publication. ########
 ########                                                                                              ########
 ##############################################################################################################
 ##############################################################################################################
@@ -24,7 +23,7 @@ def read_gmsh_file(filename):
 
   print ('Starting to read the input file ...')
   mesh_file = open(filename, 'r')
-  ##mesh_file = open("PlanarDisk_2D.msh")
+  ##mesh_file = open("inlet_TOF3.msh")
 
   buffer = "";
 
@@ -238,8 +237,8 @@ def find_boundary_nodes_SurfMesh(triags):
 
   #print(BoundaryNodes)
   #print(FinalEdgeList)
-  #print("Number of edges = {}".format(lines_filled))
-  #print("Number of nodes = {}".format(NNodes))
+  print("Number of edges = {}".format(lines_filled))
+  print("Number of nodes = {}".format(NNodes))
 
 
          

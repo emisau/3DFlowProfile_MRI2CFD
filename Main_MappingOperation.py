@@ -4,14 +4,15 @@
 ######## Copyright (C) Emilie Sauvage 2017 - e.sauvage@ucl.ac.uk / sauvage.emilie@gmail.com           ######## 
 ######## All rights reserved.                                                                         ########
 ########                                                                                              ########
-######## If you are using this software, please let me know in case your work is made public or       ########
-######## leads to a publication.                                                                      ########
+######## If you are using this software, please let me know in case your work leads to a publication. ########
 ########                                                                                              ########
 ##############################################################################################################
 ##############################################################################################################
 
 import numpy as np
 import math
+import csv
+import os
 
 # My own module called 'Gmsh' (functions in file Gmsh.py)
 import Gmsh
@@ -23,6 +24,8 @@ import SearchAlgo
 import SearchAlgo_3Nodes
 import SearchAlgo_6Nodes
 import Plot
+import WriteFiles
+import WritePoints
 
 
 from mpl_toolkits.mplot3d import Axes3D
@@ -137,8 +140,12 @@ if __name__ == '__main__':
 
 
   
-  MRI_Inputfile =  "3DVelocityShapeProfiles.csv"
-  
+  MRI_Inputfile =  "TOF3_3DProfileData.csv"
+  NormalVector = [0.6843449, -0.5662259, 0.4594129]  ##This is the normal vector to the inlet surface obtained from VMTK
+  BaseFolder_path = "/home/emilie/Work/MyLittleCodes/Python/3DFlowProfile_MRI2CFD_MariaBoumpouli/TOF3_m"
+
+
+
   ResolX, ResolY, RowNb, ColumnNb, VectXcoord, VectYcoord, Time, VelocityMat = VoxelGrid.read_MRI_voxel_grid(MRI_Inputfile)
 
   print("Extracting ellipse areas ...")
@@ -150,12 +157,12 @@ if __name__ == '__main__':
   print("Adimensionalisation of voxel grid ...")
   Angular_Coordinate, Recal_Xcoord, Recal_Ycoord, vel_min, vel_max = AdimVoxGrid.adimention_MRI_voxel_grid(RowNb, ColumnNb, Time, Xc, Yc,VectXcoord, VectYcoord, R_voxel_max, Radial_Coordinate, VelocityMat, VelocityMat_Parabolic)
 
-  meshfile = "PlanarDisk_2D_Medium.msh"
+  meshfile = "inlet_TOF3.msh"
   x,y,z, lines, triags, tetras = Gmsh.read_gmsh_file(meshfile)
   FinalEdgeList, BoundaryNodes = Gmsh.find_boundary_nodes_SurfMesh(triags)
   
   print("Adimensionalisation of inlet grid ...")
-  R_inlet_max, NNodes, X_local, Y_local, r_inlet, Phi_inlet = AdimInletMesh.adimention_Inlet_grid(meshfile, RowNb, ColumnNb, Time, VectXcoord, VectYcoord, VelocityMat)
+  R_inlet_max, NNodes, X_local, Y_local, r_inlet, Phi_inlet = AdimInletMesh.adimention_Inlet_grid(meshfile, RowNb, ColumnNb, Time, VectXcoord, VectYcoord, VelocityMat, NormalVector)
 
   print('R-max is: {}'.format(R_inlet_max))
   print("Searching for closest values ....")
@@ -199,4 +206,39 @@ print("Encoding images into movie ...")
 cmnd = "mencoder mf://" + NameBase + "*.png -mf w=800:h=600:fps=4:type=png -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output_1Profile.avi"
 
 call(cmnd,shell=True)
+
+# ********************************************************************************************************************************  
+
+##################################################################################"
+  ### Write Velocity_inlet and points_inlet at a csv file  ###"
+  
+##################################################################################"
+
+
+
+#NormalVector = [0.6843449, -0.5662259, 0.4594129]  ##This is the normal vector to the inlet surface obtained from VMTK
+#BaseFolder_path = "/home/maria/Desktop/SRV/3DVelocityProfile/new_code/TOF3_m/"
+
+NameOfInletSurface = "inflow"
+OpenFOAMFolder_path = os.path.join(BaseFolder_path, "TOF3_tv", "constant", "boundaryData", NameOfInletSurface)
+if not os.path.exists(OpenFOAMFolder_path):
+  os.makedirs(OpenFOAMFolder_path)
+os.chdir(OpenFOAMFolder_path)
+    
+    
+n = 3 ## Number of decimal point after rounding -- This is used for the name of the folder
+k = 1e-3 ## This a multiplying factor to convert the time values from milisecond to second
+
+for t in range(len(Time)):
+  Time[t] = k * Time[t]
+  TimeFolderName = '{0:.{1}f}'.format(Time[t], n)
+  SubFolder_path = os.path.join(OpenFOAMFolder_path,TimeFolderName)
+  if not os.path.exists(SubFolder_path):
+    os.makedirs(SubFolder_path)
+  os.chdir(SubFolder_path)
+  WriteFiles.VelocityForOpenFOAM(NNodes, t, Velocity_inlet, NormalVector)
+  os.chdir(OpenFOAMFolder_path)
+  
+WriteFiles.NodesCoordForOpenFOAM(NNodes, x, y, z)
+
 
